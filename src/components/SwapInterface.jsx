@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import WalletModal from './WalletModal'
+import { useWallet } from '../context/WalletContext'
 
 const SwapInterface = () => {
   const [fromAmount, setFromAmount] = useState('')
@@ -6,6 +8,8 @@ const SwapInterface = () => {
   const [fromToken, setFromToken] = useState('ETH')
   const [toToken, setToToken] = useState('USDC')
   const [showDetails, setShowDetails] = useState(false)
+  const [showWalletModal, setShowWalletModal] = useState(false)
+  const { account } = useWallet()
 
   const handleSwap = () => {
     // Swap tokens
@@ -70,15 +74,19 @@ const SwapInterface = () => {
               </div>
             </div>
             <button className="flex items-center gap-2 px-3 py-2 pl-2 bg-white rounded-2xl hover:bg-gray-100 transition-all duration-200 flex-shrink-0">
-              <img 
-                src={`https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/${fromToken === 'ETH' ? '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2' : '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'}/logo.png`}
-                alt={fromToken}
-                className="w-6 h-6 rounded-full"
-                onError={(e) => {
-                  e.target.onerror = null
-                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iI0U4RThFOCIvPjwvc3ZnPg=='
-                }}
-              />
+              {fromToken === 'ETH' ? (
+                <img 
+                  src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png"
+                  alt="ETH"
+                  className="w-6 h-6 rounded-full"
+                />
+              ) : (
+                <img 
+                  src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
+                  alt="USDC"
+                  className="w-6 h-6 rounded-full"
+                />
+              )}
               <span className="text-lg font-bold text-gray-900">{fromToken}</span>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -124,15 +132,19 @@ const SwapInterface = () => {
               </div>
             </div>
             <button className="flex items-center gap-2 px-3 py-2 pl-2 bg-white rounded-2xl hover:bg-gray-100 transition-all duration-200 flex-shrink-0">
-              <img 
-                src={`https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/${toToken === 'USDC' ? '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48' : '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'}/logo.png`}
-                alt={toToken}
-                className="w-6 h-6 rounded-full"
-                onError={(e) => {
-                  e.target.onerror = null
-                  e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iI0U4RTRFOCIvPjwvc3ZnPg=='
-                }}
-              />
+              {toToken === 'USDC' ? (
+                <img 
+                  src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
+                  alt="USDC"
+                  className="w-6 h-6 rounded-full"
+                />
+              ) : (
+                <img 
+                  src="https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png"
+                  alt="ETH"
+                  className="w-6 h-6 rounded-full"
+                />
+              )}
               <span className="text-lg font-bold text-gray-900">{toToken}</span>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -158,14 +170,22 @@ const SwapInterface = () => {
 
         {/* Swap Button */}
         <button 
-          disabled={!fromAmount}
+          disabled={!fromAmount || (account && !fromAmount)}
+          onClick={() => {
+            if (!account) {
+              setShowWalletModal(true)
+            } else {
+              // 执行交换逻辑
+              alert('执行交换: ' + fromAmount + ' ' + fromToken + ' → ' + toToken)
+            }
+          }}
           className={`w-full py-5 mt-2 rounded-[20px] text-xl font-semibold transition-all duration-200 ${
             !fromAmount 
               ? 'bg-[#f7f8fa] text-gray-400 cursor-not-allowed' 
               : 'bg-uniswap-pink text-white hover:bg-uniswap-pink-dark hover:shadow-lg active:scale-[0.98]'
           }`}
         >
-          {!fromAmount ? 'Enter an amount' : 'Connect Wallet'}
+          {!fromAmount ? 'Enter an amount' : account ? 'Swap' : 'Connect Wallet'}
         </button>
 
         {/* Details */}
@@ -213,6 +233,12 @@ const SwapInterface = () => {
           </div>
         )}
       </div>
+      
+      {/* Wallet Modal */}
+      <WalletModal 
+        isOpen={showWalletModal} 
+        onClose={() => setShowWalletModal(false)} 
+      />
     </div>
   )
 }

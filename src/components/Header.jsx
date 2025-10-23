@@ -1,8 +1,15 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './Header.css'
+import WalletModal from './WalletModal'
+import { useWallet } from '../context/WalletContext'
 
 const Header = ({ activePage, setActivePage }) => {
+  const [showWalletModal, setShowWalletModal] = useState(false)
+  const [showAccountMenu, setShowAccountMenu] = useState(false)
+  const { account, formatAddress, disconnectWallet, getChainName, chainId } = useWallet()
+  
   return (
+    <>
     <header className="header">
       <div className="header-content">
         <div className="header-left">
@@ -56,12 +63,52 @@ const Header = ({ activePage, setActivePage }) => {
               <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="2"/>
             </svg>
           </button>
-          <button className="connect-wallet-button">
-            Connect
-          </button>
+          {account ? (
+            <div className="relative">
+              <button 
+                className="connect-wallet-button connected"
+                onClick={() => setShowAccountMenu(!showAccountMenu)}
+              >
+                <div className="wallet-indicator"></div>
+                {formatAddress(account)}
+              </button>
+              {showAccountMenu && (
+                <div className="account-menu">
+                  <div className="account-menu-header">
+                    <div className="account-address">{formatAddress(account)}</div>
+                    <div className="account-chain">{getChainName(chainId)}</div>
+                  </div>
+                  <button 
+                    className="disconnect-button"
+                    onClick={() => {
+                      disconnectWallet()
+                      setShowAccountMenu(false)
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    断开连接
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button 
+              className="connect-wallet-button"
+              onClick={() => setShowWalletModal(true)}
+            >
+              Connect
+            </button>
+          )}
         </div>
       </div>
+      <WalletModal 
+        isOpen={showWalletModal} 
+        onClose={() => setShowWalletModal(false)} 
+      />
     </header>
+    </>
   )
 }
 

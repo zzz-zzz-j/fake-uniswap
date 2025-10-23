@@ -4,6 +4,7 @@ import SwapInterface from './components/SwapInterface'
 import TokensPage from './components/TokensPage'
 import NFTsPage from './components/NFTsPage'
 import PoolPage from './components/PoolPage'
+import { WalletProvider } from './context/WalletContext'
 import './App.css'
 
 function App() {
@@ -25,12 +26,14 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <Header activePage={activePage} setActivePage={setActivePage} />
-      <main className="main-content">
-        {renderPage()}
-      </main>
-    </div>
+    <WalletProvider>
+      <div className="app">
+        <Header activePage={activePage} setActivePage={setActivePage} />
+        <main className="main-content">
+          {renderPage()}
+        </main>
+      </div>
+    </WalletProvider>
   )
 }
 
